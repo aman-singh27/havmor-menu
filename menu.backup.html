@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HAVMOR — Menu (Print, v5)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Work+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6EFDD; --paper-2:#EFE5CB; --ink:#241E17;
+    --chili:#CE3B22; --chili-dark:#A82D19; --turmeric:#E5A00D;
+    --leaf:#3E8256; --muted:#8A7A5E; --hairline:#D3C296;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:#C9C2AC; font-family:'Work Sans',sans-serif; color:var(--ink); -webkit-font-smoothing:antialiased; }
+  .display{ font-family:'Anton',sans-serif; letter-spacing:0.02em; text-transform:uppercase; }
+  .mono{ font-family:'Space Mono',monospace; }
+
+  .page{ width:210mm; min-height:297mm; margin:20px auto; background:var(--paper); box-shadow:0 10px 34px rgba(0,0,0,0.28); padding:14mm 14mm; position:relative; overflow:hidden; }
+  .page-label{ position:absolute; top:7mm; right:14mm; font-family:'Space Mono',monospace; font-size:8px; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); }
+
+  @media print{ 
+    body{background:none;} 
+    .page{box-shadow:none;margin:0;width:210mm;min-height:297mm;page-break-after:always;} 
+    .page-label{display:none;} 
+  }
+  @page{ size:A4; margin:0; }
+
+  .veg{ width:10px; height:10px; border:1.2px solid var(--leaf); border-radius:2px; display:inline-flex; align-items:center; justify-content:center; flex:none; margin-right:6px; flex-shrink:0; }
+  .veg::after{ content:""; width:4px; height:4px; border-radius:50%; background:var(--leaf); }
+
+  /* ---------- cover ---------- */
+  .cover{ display:flex; flex-direction:column; align-items:center; justify-content:center; height:269mm; text-align:center; position:relative; }
+  .cover::before{
+    content:"";
+    position:absolute; top:0; left:0; right:0; bottom:0;
+    background: 
+      radial-gradient(circle at 20% 30%, rgba(206,59,34,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(62,130,86,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(229,160,13,0.04) 0%, transparent 60%);
+    pointer-events:none;
+  }
+  .stamp{ 
+    width:110px; height:110px; margin:0 auto 28px; 
+    border:2.5px dashed var(--leaf); border-radius:50%; 
+    display:flex; align-items:center; justify-content:center;
+    position:relative; z-index:1;
+  }
+  .stamp .stamp-text{ font-family:'Anton',sans-serif; font-size:13px; line-height:1.3; color:var(--leaf); letter-spacing:0.05em; }
+  .cover-word{ font-size:96px; line-height:0.88; margin:0; position:relative; z-index:1; }
+  .cover-word span{ color:var(--chili); }
+  .cover-divider{
+    width:60px; height:3px; background:var(--turmeric); margin:18px auto; border-radius:2px; position:relative; z-index:1;
+  }
+  .cover-tag{ font-family:'Anton',sans-serif; font-size:18px; letter-spacing:0.35em; color:var(--turmeric); margin:0 0 20px; position:relative; z-index:1; }
+  .cover-sub{ max-width:380px; margin:0 auto; font-size:13.5px; line-height:1.7; color:var(--muted); position:relative; z-index:1; }
+  .cover-badges{ display:flex; gap:12px; justify-content:center; margin-top:28px; flex-wrap:wrap; position:relative; z-index:1; }
+  .cover-badge{ border:1.5px solid var(--ink); padding:7px 16px; border-radius:999px; font-size:10.5px; letter-spacing:0.06em; text-transform:uppercase; font-weight:600; }
+  .cover-footer{
+    position:absolute; bottom:18mm; left:0; right:0; text-align:center;
+    font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:0.06em;
+  }
+
+  /* ---------- page head ---------- */
+  .page-head{ margin-bottom:16px; display:flex; align-items:baseline; gap:12px; }
+  .page-head h2{ font-size:28px; margin:0; line-height:1; }
+  .page-head .rule{ border:none; border-top:2.5px solid var(--ink); margin:0; flex:1; align-self:center; }
+
+  /* ---------- zone divider ---------- */
+  .zone{ margin-bottom:18px; }
+  .zone:last-child{ margin-bottom:0; }
+  .zone-head{
+    display:flex; align-items:center; gap:10px;
+    background:var(--chili); color:var(--paper);
+    padding:7px 14px; border-radius:6px;
+    margin-bottom:12px;
+  }
+  .zone-head h3{ font-size:15px; margin:0; letter-spacing:0.03em; font-weight:400; }
+  .zone-head .count{ font-family:'Space Mono',monospace; font-size:9px; opacity:0.85; margin-left:auto; letter-spacing:0.02em; }
+
+  /* ---------- category card ---------- */
+  .cat-grid{ display:grid; gap:14px; align-items:start; }
+  .cat-grid.c2{ grid-template-columns:1fr 1fr; }
+  .cat-grid.c3{ grid-template-columns:1fr 1fr 1fr; }
+
+  .cat-compact{ break-inside:avoid; page-break-inside:avoid; }
+  .cat-compact .head{ 
+    background:var(--turmeric); padding:7px 12px; border-radius:6px 6px 0 0; 
+    display:flex; align-items:center; justify-content:space-between; 
+  }
+  .cat-compact .head h4{ margin:0; font-size:13.5px; color:var(--ink); line-height:1.1; letter-spacing:0.02em; font-weight:400; }
+  .cat-compact .body{ 
+    background:var(--paper-2); border:1.5px solid var(--hairline); border-top:none; 
+    border-radius:0 0 6px 6px; padding:6px 12px 10px; 
+  }
+
+  .col-labels{ display:flex; justify-content:flex-end; gap:8px; padding:5px 0 3px; font-family:'Space Mono',monospace; font-size:8px; letter-spacing:0.04em; text-transform:uppercase; color:var(--muted); border-bottom:1.5px dashed var(--hairline); margin-bottom:2px; }
+  .col-labels span{ width:30px; text-align:right; }
+
+  .row{ display:flex; align-items:baseline; gap:6px; padding:5.5px 0; border-bottom:1.5px dashed var(--hairline); }
+  .row:last-child{ border-bottom:none; }
+  .row .name-wrap{ display:flex; align-items:baseline; flex:1; min-width:0; }
+  .row .name-col{ display:flex; flex-direction:column; min-width:0; }
+  .row .name{ font-size:12.5px; font-weight:600; line-height:1.3; color:var(--ink); }
+  .row .desc{ font-size:8.5px; color:var(--muted); font-style:italic; line-height:1.25; margin-top:1.5px; }
+  .row .leader{ flex:1; border-bottom:1.5px dotted var(--hairline); margin:0 6px; min-width:5px; align-self:center; }
+  .row .prices{ display:flex; gap:8px; flex:none; align-items:center; }
+  .row .price{ font-family:'Space Mono',monospace; font-size:12.5px; font-weight:700; color:var(--chili-dark); width:30px; text-align:right; flex:none; }
+  .row .price.dash{ color:var(--muted); font-weight:400; }
+  .row .price.wide{ width:34px; }
+
+  .note{ margin-top:5px; padding-top:5px; border-top:1.5px dashed var(--hairline); font-size:9px; color:var(--muted); font-style:italic; }
+
+  .footer-strip{ margin-top:18px; padding-top:14px; border-top:2.5px solid var(--ink); display:flex; flex-wrap:wrap; justify-content:center; gap:28px; font-size:11px; }
+  .footer-strip .k{ color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; font-size:10px; }
+  .footer-strip .v{ font-family:'Space Mono',monospace; font-weight:700; font-size:12px; }
+
+  /* Print-specific improvements */
+  @media print {
+    .cat-compact { break-inside: avoid; page-break-inside: avoid; }
+    .zone { break-inside: avoid; page-break-inside: avoid; }
+    .row { break-inside: avoid; page-break-inside: avoid; }
+    body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  }
+  .cover-contact{ 
+    margin-top:32px; display:flex; flex-direction:column; gap:10px; 
+    align-items:center; position:relative; z-index:1; 
+    background:var(--paper-2); border:1.5px solid var(--hairline); 
+    border-radius:10px; padding:16px 28px; 
+  }
+  .contact-row{ display:flex; align-items:center; gap:10px; width:100%; justify-content:space-between; }
+  .contact-label{ font-family:'Work Sans',sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); font-weight:600; }
+  .contact-number{ font-family:'Space Mono',monospace; font-size:18px; font-weight:700; color:var(--chili-dark); letter-spacing:0.02em; }
+  .contact-loc{ font-family:'Space Mono',monospace; font-size:13px; font-weight:700; color:var(--ink); }
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<!-- ============ PAGE 1 — FRONT COVER ============ -->
+<div class="page cover">
+  <div class="page-label">HAVMOR · 1 / 4</div>
+  <div class="stamp"><div class="stamp-text display">100%<br>VEG</div></div>
+  <h1 class="cover-word display">HAV<span>MOR</span></h1>
+  <div class="cover-divider"></div>
+  <div class="cover-tag">Have More.</div>
+  <p class="cover-sub">Your hostel's own kitchen. No gate pass, no delivery app — just a call away. Fresh, filling, and open when the mess has already shut its shutters.</p>
+  <div class="cover-badges">
+    <span class="cover-badge">Super Fast Delivery</span>
+    <span class="cover-badge">Inside GHS, G1 First Floor</span>
+    <span class="cover-badge">100% Veg</span>
+  </div>
+  <div class="cover-contact">
+    <div class="contact-row"><span class="contact-label">Order</span><span class="contact-number">80582 55863</span></div>
+    <div class="contact-row"><span class="contact-label">Complaints</span><span class="contact-number">77908 16519</span></div>
+    <div class="contact-row"><span class="contact-label">Location</span><span class="contact-loc">GHS, G1 First Floor</span></div>
+  </div>
+</div>
+
+<!-- ============ PAGE 2 — THE MAINS ============ -->
+<div class="page">
+  <div class="page-label">HAVMOR · 2 / 4</div>
+  <div class="page-head">
+    <h2 class="display">The Mains</h2>
+    <hr class="rule">
+  </div>
+
+  <div class="zone">
+    <div class="zone-head"><h3 class="display">Pizza</h3><span class="count">8" / 11" · 14 varieties</span></div>
+    <div class="cat-grid c2">
+      <div class="cat-compact">
+        <div class="body" style="border-radius:6px; border:1.5px solid var(--hairline);">
+          <div class="row"><div class="name-wrap"><span class="veg"></span><div class="name-col"><span class="name">Onion Feast</span><span class="desc">Custom veggies</span></div></div><div class="leader"></div><div class="prices"><span class="price">95</span><span class="price wide">179</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><div class="name-col"><span class="name">Margherita</span><span class="desc">Simple cheese</span></div></div><div class="leader"></div><div class="prices"><span class="price">110</span><span class="price wide">210</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><div class="name-col"><span class="name">Golden Corn</span><span class="desc">Cheese, corn</span></div></div><div class="leader"></div><div class="prices"><span class="price">119</span><span class="price wide">219</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><div class="name-col"><span class="name">Nova Margherita</span><span class="desc">Extra cheese on cheese</span></div></div><div class="leader"></div><div class="prices"><span class="price">149</span><span class="price wide">259</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><div class="name-col"><span class="name">Veggie Paradise</span><span class="desc">Onion, capsicum, sweet corn</span></div></div><div class="leader"></div><div class="prices"><span class="price">149</span><span class="price wide">259</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><div class="name-col"><span class="name">Veggie Deluxe</span><span class="desc">Onion, capsicum, sweet corn, tomato, olives, jalapeno</span></div></div><div class="leader"></div><div class="prices"><span class="price">149</span><span class="price wide">259</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><div class="name-col"><span class="name">Country Special</span><span class="desc">Onion, capsicum, sweet corn, tomato, red paprika</span></div></div><div class="leader"></div><div class="prices"><span class="price">169</span><span class="price wide">289</span></div></div>
+        </div>
+      </div>
+      <div class="cat-compact">
+        <div class="body" style="border-radius:6px; border:1.5px solid var(--hairline);">
+          <div class="row"><div class="name-wrap"><span class="veg"></span><div class="name-col"><span class="name">Exotica</span><span class="desc">Jalapeno, olives, red paprika, capsicum</span></div></div><div class="leader"></div><div class="prices"><span class="price">169</span><span class="price wide">309</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><div class="name-col"><span class="name">Tandoori Paneer</span><span class="desc">Paneer, capsicum, tomato, onion, red paprika</span></div></div><div class="leader"></div><div class="prices"><span class="price">179</span><span class="price wide">309</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><div class="name-col"><span class="name">Paneer Do Pyaza</span><span class="desc">Onion, paneer, red paprika</span></div></div><div class="leader"></div><div class="prices"><span class="price">179</span><span class="price wide">309</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><div class="name-col"><span class="name">Peppy Paneer</span><span class="desc">Paneer, red capsicum, red paprika</span></div></div><div class="leader"></div><div class="prices"><span class="price">199</span><span class="price wide">319</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><div class="name-col"><span class="name">Veggie Supreme</span><span class="desc">Onion, capsicum, sweet corn, tomato, red paprika, jalapeno, olives, mushrooms</span></div></div><div class="leader"></div><div class="prices"><span class="price">199</span><span class="price wide">329</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><div class="name-col"><span class="name">Farmhouse</span><span class="desc">Fried mushroom, paneer, red capsicum, golden corn</span></div></div><div class="leader"></div><div class="prices"><span class="price">209</span><span class="price wide">379</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><div class="name-col"><span class="name">Paneer Makhani</span><span class="desc">Paneer and capsicum on makhani sauce</span></div></div><div class="leader"></div><div class="prices"><span class="price">249</span><span class="price wide">409</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="zone">
+    <div class="zone-head"><h3 class="display">Breads &amp; Pasta</h3><span class="count">10 items</span></div>
+    <div class="cat-grid c2">
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Garlic Bread</h4></div>
+        <div class="body">
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Cheese Garlic Bread</span></div><div class="leader"></div><div class="prices"><span class="price">89</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Exotica Garlic Bread</span></div><div class="leader"></div><div class="prices"><span class="price">109</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Stuffed Garlic Bread</span></div><div class="leader"></div><div class="prices"><span class="price">149</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Paneer Stuffed Garlic Bread</span></div><div class="leader"></div><div class="prices"><span class="price">159</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Corn Stuffed Garlic Bread</span></div><div class="leader"></div><div class="prices"><span class="price">159</span></div></div>
+        </div>
+      </div>
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Pasta</h4></div>
+        <div class="body">
+          <div class="col-labels"><span>Half</span><span>Full</span></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">White Sauce Pasta</span></div><div class="leader"></div><div class="prices"><span class="price">99</span><span class="price">139</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Red Sauce Pasta</span></div><div class="leader"></div><div class="prices"><span class="price">99</span><span class="price">139</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Pink Sauce Pasta</span></div><div class="leader"></div><div class="prices"><span class="price">119</span><span class="price">159</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Makhani Sauce Pasta</span></div><div class="leader"></div><div class="prices"><span class="price">119</span><span class="price">159</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Cheese Corn Pasta</span></div><div class="leader"></div><div class="prices"><span class="price">119</span><span class="price">159</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAGE 3 — SNACKS & QUICK BITES ============ -->
+<div class="page">
+  <div class="page-label">HAVMOR · 3 / 4</div>
+  <div class="page-head">
+    <h2 class="display">Snacks &amp; Quick Bites</h2>
+    <hr class="rule">
+  </div>
+
+  <div class="zone">
+    <div class="zone-head"><h3 class="display">Handheld</h3><span class="count">21 items</span></div>
+    <div class="cat-grid c3">
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Burger</h4></div>
+        <div class="body">
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Aloo Tikki Burger</span></div><div class="leader"></div><div class="prices"><span class="price">59</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Mexican Cheese</span></div><div class="leader"></div><div class="prices"><span class="price">79</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">American Cheese</span></div><div class="leader"></div><div class="prices"><span class="price">89</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Tandoori Paneer</span></div><div class="leader"></div><div class="prices"><span class="price">89</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Paneer Cheese</span></div><div class="leader"></div><div class="prices"><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Big Shot</span></div><div class="leader"></div><div class="prices"><span class="price">119</span></div></div>
+        </div>
+      </div>
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Wrap &amp; Roll</h4></div>
+        <div class="body">
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Veg Noodle Roll</span></div><div class="leader"></div><div class="prices"><span class="price">69</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Aloo Tikki Wrap</span></div><div class="leader"></div><div class="prices"><span class="price">69</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Paneer Wrap/Roll</span></div><div class="leader"></div><div class="prices"><span class="price">89</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Paneer Cheese Wrap/Roll</span></div><div class="leader"></div><div class="prices"><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Peri Peri Paneer Wrap/Roll</span></div><div class="leader"></div><div class="prices"><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">BBQ Paneer Wrap/Roll</span></div><div class="leader"></div><div class="prices"><span class="price">109</span></div></div>
+        </div>
+      </div>
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Sandwich</h4></div>
+        <div class="body">
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Veg Sandwich</span></div><div class="leader"></div><div class="prices"><span class="price">59</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Aloo Tikki Sandwich</span></div><div class="leader"></div><div class="prices"><span class="price">70</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Aloo Tikki Cheese</span></div><div class="leader"></div><div class="prices"><span class="price">79</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">OTC</span></div><div class="leader"></div><div class="prices"><span class="price">89</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Cheese Corn</span></div><div class="leader"></div><div class="prices"><span class="price">89</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Mexican Cheese</span></div><div class="leader"></div><div class="prices"><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Tandoori Paneer</span></div><div class="leader"></div><div class="prices"><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Peri Peri Paneer</span></div><div class="leader"></div><div class="prices"><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Club Sandwich</span></div><div class="leader"></div><div class="prices"><span class="price">109</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Bombay Cheese Special</span></div><div class="leader"></div><div class="prices"><span class="price">109</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="zone">
+    <div class="zone-head"><h3 class="display">Shared Plates</h3><span class="count">24 items</span></div>
+    <div class="cat-grid c3">
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Starters &amp; Crispy Bites</h4></div>
+        <div class="body">
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Classic Fries</span></div><div class="leader"></div><div class="prices"><span class="price">79</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Peri Peri Fries</span></div><div class="leader"></div><div class="prices"><span class="price">89</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Spring Roll</span></div><div class="leader"></div><div class="prices"><span class="price">89</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Cheese Pocket</span></div><div class="leader"></div><div class="prices"><span class="price">89</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Cheese Ball</span></div><div class="leader"></div><div class="prices"><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Cheesy Fries</span></div><div class="leader"></div><div class="prices"><span class="price">109</span></div></div>
+          <div class="col-labels" style="margin-top:2px;"><span>Half</span><span>Full</span></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Chilli Potato</span></div><div class="leader"></div><div class="prices"><span class="price">79</span><span class="price">119</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Honey Chilli Potato</span></div><div class="leader"></div><div class="prices"><span class="price">89</span><span class="price">129</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Manchurian (Dry/Gravy)</span></div><div class="leader"></div><div class="prices"><span class="price">79</span><span class="price">119</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Chilli Paneer</span></div><div class="leader"></div><div class="prices"><span class="price">109</span><span class="price">149</span></div></div>
+        </div>
+      </div>
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Momos</h4></div>
+        <div class="body">
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Steam Momos (6pc)</span></div><div class="leader"></div><div class="prices"><span class="price">69</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Fried Momos (6pc)</span></div><div class="leader"></div><div class="prices"><span class="price">89</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Peri Peri Fried Momos (6pc)</span></div><div class="leader"></div><div class="prices"><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Paneer Steam Momos (6pc)</span></div><div class="leader"></div><div class="prices"><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Paneer Fried Momos (6pc)</span></div><div class="leader"></div><div class="prices"><span class="price">109</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Kurkure Momos (6pc)</span></div><div class="leader"></div><div class="prices"><span class="price">109</span></div></div>
+        </div>
+      </div>
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Noodles / Rice</h4></div>
+        <div class="body">
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Veg Noodles</span></div><div class="leader"></div><div class="prices"><span class="price">79</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Hakka Noodles</span></div><div class="leader"></div><div class="prices"><span class="price">79</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Veg Chilli Garlic Noodles</span></div><div class="leader"></div><div class="prices"><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Schezwan Noodles</span></div><div class="leader"></div><div class="prices"><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Plain Rice</span></div><div class="leader"></div><div class="prices"><span class="price">79</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Veg Fried Rice</span></div><div class="leader"></div><div class="prices"><span class="price">109</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Paneer Fried Rice</span></div><div class="leader"></div><div class="prices"><span class="price">109</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Schezwan Rice</span></div><div class="leader"></div><div class="prices"><span class="price">109</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="zone">
+    <div class="zone-head"><h3 class="display">Desi Comfort</h3><span class="count">21 items</span></div>
+    <div class="cat-grid c2">
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Chaat</h4></div>
+        <div class="body">
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Vada Pav</span></div><div class="leader"></div><div class="prices"><span class="price">59</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Dabeli</span></div><div class="leader"></div><div class="prices"><span class="price">79</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Chole Bhature</span></div><div class="leader"></div><div class="prices"><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Pav Bhaji</span></div><div class="leader"></div><div class="prices"><span class="price">99</span></div></div>
+        </div>
+      </div>
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Paratha</h4></div>
+        <div class="body">
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Aloo Paratha</span></div><div class="leader"></div><div class="prices"><span class="price">90</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Aloo Cheese Paratha</span></div><div class="leader"></div><div class="prices"><span class="price">120</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Aloo Onion Paratha</span></div><div class="leader"></div><div class="prices"><span class="price">100</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Paneer Paratha</span></div><div class="leader"></div><div class="prices"><span class="price">130</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Cheese Paratha</span></div><div class="leader"></div><div class="prices"><span class="price">120</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Paneer Cheese Paratha</span></div><div class="leader"></div><div class="prices"><span class="price">140</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Mix Cheese Paratha</span></div><div class="leader"></div><div class="prices"><span class="price">130</span></div></div>
+        </div>
+      </div>
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Maggie</h4></div>
+        <div class="body">
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Masala Maggie</span></div><div class="leader"></div><div class="prices"><span class="price">49</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Veggie Maggie</span></div><div class="leader"></div><div class="prices"><span class="price">59</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Cheese Maggie</span></div><div class="leader"></div><div class="prices"><span class="price">69</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Tandoori</span></div><div class="leader"></div><div class="prices"><span class="price">69</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Tandoori Cheese</span></div><div class="leader"></div><div class="prices"><span class="price">79</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Cheese Corn</span></div><div class="leader"></div><div class="prices"><span class="price">79</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Tadka Maggie</span></div><div class="leader"></div><div class="prices"><span class="price">89</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Paneer Maggie</span></div><div class="leader"></div><div class="prices"><span class="price">109</span></div></div>
+        </div>
+      </div>
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Patties</h4></div>
+        <div class="body">
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Aloo Patties</span></div><div class="leader"></div><div class="prices"><span class="price">29</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Maska Patties</span></div><div class="leader"></div><div class="prices"><span class="price">49</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Cheese Maska Patties</span></div><div class="leader"></div><div class="prices"><span class="price">69</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Paneer Patties</span></div><div class="leader"></div><div class="prices"><span class="price">79</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Paneer Cheese Patties</span></div><div class="leader"></div><div class="prices"><span class="price">89</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAGE 4 — DRINKS, SWEET & DEALS ============ -->
+<div class="page">
+  <div class="page-label">HAVMOR · 4 / 4</div>
+  <div class="page-head">
+    <h2 class="display">Drinks, Sweet &amp; Deals</h2>
+    <hr class="rule">
+  </div>
+
+  <div class="zone">
+    <div class="zone-head"><h3 class="display">Shakes &amp; Cold Coffee</h3><span class="count">23 items</span></div>
+    <div class="cat-grid c2">
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Shakes</h4></div>
+        <div class="body">
+          <div class="col-labels"><span>Half</span><span>Full</span></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Banana Shake</span></div><div class="leader"></div><div class="prices"><span class="price">69</span><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Vanilla Shake</span></div><div class="leader"></div><div class="prices"><span class="price">69</span><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Strawberry Shake</span></div><div class="leader"></div><div class="prices"><span class="price">69</span><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Blueberry Shake</span></div><div class="leader"></div><div class="prices"><span class="price">79</span><span class="price">109</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Mango Shake</span></div><div class="leader"></div><div class="prices"><span class="price">79</span><span class="price">109</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Butter Scotch Shake</span></div><div class="leader"></div><div class="prices"><span class="price">79</span><span class="price">109</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Chocolate Shake</span></div><div class="leader"></div><div class="prices"><span class="price">79</span><span class="price">109</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Brownie Shake</span></div><div class="leader"></div><div class="prices"><span class="price">99</span><span class="price">129</span></div></div>
+        </div>
+      </div>
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Shakes, contd.</h4></div>
+        <div class="body">
+          <div class="col-labels"><span>Half</span><span>Full</span></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Oreo Shake</span></div><div class="leader"></div><div class="prices"><span class="price">89</span><span class="price">119</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Oreo Brownie Shake</span></div><div class="leader"></div><div class="prices"><span class="price">99</span><span class="price">129</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Oreo Kit-Kat Shake</span></div><div class="leader"></div><div class="prices"><span class="price">99</span><span class="price">129</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Kit-Kat Shake</span></div><div class="leader"></div><div class="prices"><span class="price">99</span><span class="price">129</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Kit-Kat Brownie</span></div><div class="leader"></div><div class="prices"><span class="price">99</span><span class="price">129</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Peanut Butter Shake</span></div><div class="leader"></div><div class="prices"><span class="price">99</span><span class="price">129</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Nutella Shake</span></div><div class="leader"></div><div class="prices"><span class="price">109</span><span class="price">159</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Ferrero Rocher Shake</span></div><div class="leader"></div><div class="prices"><span class="price">189</span><span class="price">259</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="cat-grid c2" style="margin-top:14px;">
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Cold Coffee</h4></div>
+        <div class="body">
+          <div class="col-labels"><span>Half</span><span>Full</span></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Cold Coffee</span></div><div class="leader"></div><div class="prices"><span class="price">69</span><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Cold Coffee (Ice Cream)</span></div><div class="leader"></div><div class="prices"><span class="price">89</span><span class="price">109</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Oreo Cold Coffee</span></div><div class="leader"></div><div class="prices"><span class="price">89</span><span class="price">109</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Brownie Cold Coffee</span></div><div class="leader"></div><div class="prices"><span class="price">99</span><span class="price">129</span></div></div>
+        </div>
+      </div>
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Cold Coffee, contd.</h4></div>
+        <div class="body">
+          <div class="col-labels"><span>Half</span><span>Full</span></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Hazelnut Coffee</span></div><div class="leader"></div><div class="prices"><span class="price">99</span><span class="price">129</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Irish Coffee</span></div><div class="leader"></div><div class="prices"><span class="price">99</span><span class="price">129</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Caramel Coffee</span></div><div class="leader"></div><div class="prices"><span class="price">99</span><span class="price">129</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="zone">
+    <div class="zone-head"><h3 class="display">Hot &amp; Cool Sips</h3><span class="count">19 items</span></div>
+    <div class="cat-grid c3">
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Hot Coffee / Chai</h4></div>
+        <div class="body">
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Cappuccino</span></div><div class="leader"></div><div class="prices"><span class="price">39</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Cafe Latte</span></div><div class="leader"></div><div class="prices"><span class="price">39</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Mochaccino</span></div><div class="leader"></div><div class="prices"><span class="price">39</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Black Coffee</span></div><div class="leader"></div><div class="prices"><span class="price">39</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Hot Chocolate</span></div><div class="leader"></div><div class="prices"><span class="price">39</span></div></div>
+          <div class="col-labels" style="margin-top:2px;"><span>S</span><span>M</span><span>L</span></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Ginger Tea / Cardamom</span></div><div class="leader"></div><div class="prices"><span class="price">29</span><span class="price">39</span><span class="price">49</span></div></div>
+        </div>
+      </div>
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Ice Tea / Soda</h4></div>
+        <div class="body">
+          <div class="col-labels"><span>Half</span><span>Full</span></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Lemon</span></div><div class="leader"></div><div class="prices"><span class="price">59</span><span class="price">69</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Green Apple</span></div><div class="leader"></div><div class="prices"><span class="price">69</span><span class="price">79</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Strawberry</span></div><div class="leader"></div><div class="prices"><span class="price">69</span><span class="price">79</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Peach</span></div><div class="leader"></div><div class="prices"><span class="price">69</span><span class="price">79</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Lemon Soda</span></div><div class="leader"></div><div class="prices"><span class="price">49</span><span class="price">59</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Masala Lemon Soda</span></div><div class="leader"></div><div class="prices"><span class="price">59</span><span class="price">69</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Nimbu Pani</span></div><div class="leader"></div><div class="prices"><span class="price">39</span><span class="price">49</span></div></div>
+        </div>
+      </div>
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Slush</h4></div>
+        <div class="body">
+          <div class="col-labels"><span>Half</span><span>Full</span></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Blue Slush</span></div><div class="leader"></div><div class="prices"><span class="price">79</span><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Green Apple</span></div><div class="leader"></div><div class="prices"><span class="price">79</span><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Strawberry</span></div><div class="leader"></div><div class="prices"><span class="price">79</span><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Mint Mojito</span></div><div class="leader"></div><div class="prices"><span class="price">89</span><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Virgin Mojito</span></div><div class="leader"></div><div class="prices"><span class="price">89</span><span class="price">99</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Baraf Ka Gola</span></div><div class="leader"></div><div class="prices"><span class="price dash">—</span><span class="price">59</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="zone">
+    <div class="zone-head"><h3 class="display">Sweet &amp; Combo Deals</h3><span class="count">8 items</span></div>
+    <div class="cat-grid c2">
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Desserts</h4></div>
+        <div class="body">
+          <div class="col-labels"><span>Half</span><span>Full</span></div>
+          <div class="row"><div class="name-wrap"><span class="veg"></span><span class="name">Brownie With Ice Cream</span></div><div class="leader"></div><div class="prices"><span class="price">99</span></div></div>
+          <div class="note">Also: Ice Cream Cone, Candy &amp; Scoop — ask staff.</div>
+        </div>
+      </div>
+      <div class="cat-compact">
+        <div class="head"><h4 class="display">Combo Deals</h4></div>
+        <div class="body">
+          <div class="row"><div class="name-wrap"><span class="name">Vada Pav+Maska Patties+Nimbu Pani</span></div><div class="leader"></div><div class="prices"><span class="price wide">129</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="name">Fried Rice+Curd</span></div><div class="leader"></div><div class="prices"><span class="price wide">139</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="name">Noodles+Momos+Soda</span></div><div class="leader"></div><div class="prices"><span class="price wide">189</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="name">Pasta+Roll+Cold Coffee</span></div><div class="leader"></div><div class="prices"><span class="price wide">219</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="name">Veggie Paradise+Lemonade+Burger</span></div><div class="leader"></div><div class="prices"><span class="price wide">229</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="name">Nova Margherita+Aloo Wrap+Oreo Shake</span></div><div class="leader"></div><div class="prices"><span class="price wide">269</span></div></div>
+          <div class="row"><div class="name-wrap"><span class="name">Peppy Paneer+Garlic Bread+Ice Tea</span></div><div class="leader"></div><div class="prices"><span class="price wide">319</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-strip">
+    <span><span class="k">Order</span> <span class="v">8058255863</span></span>
+    <span><span class="k">Complaints</span> <span class="v">7790816519</span></span>
+    <span><span class="k">Find us</span> <span class="v">GHS, G1 First Floor</span></span>
+  </div>
+</div>
+</body>
+</html>
